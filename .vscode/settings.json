@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "stdio.h": "c",
+        "stdlib.h": "c",
+        "sdl_ttf.h": "c",
+        "sdl.h": "c",
+        "game.h": "c"
+    }
+}
