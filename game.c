@@ -1,61 +1,52 @@
-#include <SDL2/SDL.h>
 #include "game.h"
-
-int playerX, playerY;
-
-void init_game()
-{
-    playerX = 600;
-    playerY = 700;
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_image.h>
+#include <stdio.h>
+void get_text_size(TTF_Font* font, const char* text, int* w, int* h){
+  TTF_SizeText(font, text, w, h);
 }
 
-void update_game(float deltaTime)
+void draw_text(SDL_Renderer* renderer, TTF_Font* font, SDL_Color color, SDL_Rect location, const char* text)
 {
-    const Uint8* keystates = SDL_GetKeyboardState(NULL);
-    if (keystates[SDL_SCANCODE_LEFT])
-        playerX -= 300 * deltaTime;
-    if (keystates[SDL_SCANCODE_RIGHT])
-        playerX += 300 * deltaTime;
+  SDL_Surface* surface = TTF_RenderText_Blended(font, text, color);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);  
+    SDL_Rect actual_location = location; 
+    actual_location.w = surface->w;
+    actual_location.h = surface->h;
+    SDL_SetTextureAlphaMod(texture, color.a);
+    SDL_RenderCopy(renderer, texture, NULL, &actual_location);
+    SDL_DestroyTexture(texture);
+    SDL_FreeSurface(surface);
 }
 
-void render_game(SDL_Renderer* renderer)
-{
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
-
-    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-    SDL_Rect playerRect = {playerX - 25, playerY - 25, 50, 50};
-    SDL_RenderFillRect(renderer, &playerRect);
-
-    SDL_RenderPresent(renderer);
-}
-
-void free_game()
-{
-
-}
-
-void play_game(SDL_Renderer* renderer)
-{
-    int playing = 1;
+void run_game(SDL_Renderer* renderer, SDL_Window* window) {
+    int running = 1;
     SDL_Event event;
-    Uint32 lastTime = SDL_GetTicks();
+    TTF_Font* font = TTF_OpenFont("src/space-invaders.ttf", 34);
 
-    while (playing)
-    {
-        Uint32 currentTime = SDL_GetTicks();
-        float deltaTime = (currentTime - lastTime) / 1000.0f;
-        lastTime = currentTime;
-
-        while (SDL_PollEvent(&event))
-        {
-            if (event.type == SDL_QUIT)
-                playing = 0;
+    while (running) {
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) running = 0;
+            if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)
+                running = 0;
         }
+       
+        SDL_RenderClear(renderer);
+        
+        //TEXT - TITLE
+        int text_w, text_h;
+        SDL_Color colorText = {255, 255, 255, 255};
+        get_text_size(font, "Score", &text_w, &text_h);       
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);     
+        SDL_Rect rect_text_title = {
+          .x = 15,
+          .y = 15,
+          .w = text_w,
+          .h = text_h
+        };        
+        draw_text(renderer, font, colorText, rect_text_title, "Score");
 
-        update_game(deltaTime);
-        render_game(renderer);
+        SDL_RenderPresent(renderer);
     }
-
-    free_game();
 }

@@ -4,22 +4,7 @@
 #include <math.h>
 #include "game.h"
 
-void get_text_size(TTF_Font* font, const char* text, int* w, int* h){
-  TTF_SizeText(font, text, w, h);
-}
 
-void draw_text(SDL_Renderer* renderer, TTF_Font* font, SDL_Color color, SDL_Rect location, const char* text)
-{
-  SDL_Surface* surface = TTF_RenderText_Blended(font, text, color);
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);  
-    SDL_Rect actual_location = location; 
-    actual_location.w = surface->w;
-    actual_location.h = surface->h;
-    SDL_SetTextureAlphaMod(texture, color.a);
-    SDL_RenderCopy(renderer, texture, NULL, &actual_location);
-    SDL_DestroyTexture(texture);
-    SDL_FreeSurface(surface);
-}
 
 int main(int argc, char *argv[])
 {
@@ -73,7 +58,7 @@ int main(int argc, char *argv[])
             {
               if (event.key.keysym.sym == SDLK_SPACE)
               {
-               
+               run_game(renderer, window);
               }
             }
         }
