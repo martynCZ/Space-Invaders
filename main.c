@@ -38,12 +38,14 @@ int main(int argc, char *argv[])
 
   SDL_Event event;
     int running = 1;
-    int displayWidth = 0;
-    int displayHeight = 0;
+    
     int spacebar_w, spacebar_h, arrows_h, arrows_w;
     SDL_Texture* spacebar = IMG_LoadTexture(renderer, "src/spacebar.png");
     SDL_Texture* arrows = IMG_LoadTexture(renderer, "src/arrows.png");
     SDL_QueryTexture(spacebar, NULL, NULL, &spacebar_w, &spacebar_h); 
+    int displayWidth = 0;
+    int displayHeight = 0;
+    
     SDL_QueryTexture(arrows, NULL, NULL, &arrows_w, &arrows_h); 
     while (running == 1)
     {
