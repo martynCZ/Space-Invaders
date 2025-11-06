@@ -2,12 +2,9 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
-#include <stdio.h>
 void get_text_size(TTF_Font* font, const char* text, int* w, int* h){
   TTF_SizeText(font, text, w, h);
 }
-#define WINDOW_WIDTH 1200
-#define WINDOW_HEIGHT 800
 
 void draw_text(SDL_Renderer* renderer, TTF_Font* font, SDL_Color color, SDL_Rect location, const char* text)
 {
@@ -22,47 +19,62 @@ void draw_text(SDL_Renderer* renderer, TTF_Font* font, SDL_Color color, SDL_Rect
     SDL_FreeSurface(surface);
 }
 
-void draw_enemy(SDL_Renderer* renderer, SDL_Texture* enemy, int lines) {
+SDL_Rect* draw_enemy(SDL_Renderer* renderer, SDL_Texture* enemy, int lines) {
     SDL_Rect rect_text_enemy;
-  int enemy_width = 45;
-        int enemy_height = 33;
-        int enemy_count = 11;    
-        int enemy_spacing = 12;
 
-        int enemy_total_width = enemy_count * enemy_width + (10) * enemy_spacing;
-        int start_x = (WINDOW_WIDTH - enemy_total_width) / 2;
+    SDL_Rect* rect_enemies = NULL;
+    int enemy_width = 45;
+    int enemy_height = 33;
+    int enemy_count = 11;    
+    int enemy_spacing = 12;
+    rect_enemies = malloc(enemy_count * lines * sizeof(SDL_Rect));
 
-        int start_y = 80;
-        for(int y = 0; y < lines; y++){
-          for(int i = 0; i < enemy_count; i++){
-            rect_text_enemy = (SDL_Rect){ 
-              .x = start_x  + i * (enemy_width + enemy_spacing),
-              .y = WINDOW_HEIGHT/2 - start_y,
-              .w = enemy_width,
-              .h = enemy_height
-            };
-            SDL_RenderCopy(renderer, enemy, NULL, &rect_text_enemy);          
-          }
-          start_y += 35;
-        }
+    int enemy_total_width = enemy_count * enemy_width + (10) * enemy_spacing;
+
+    int start_x = (WINDOW_WIDTH - enemy_total_width) / 2;
+      
+    int start_y = 80;
+    for(int y = 0; y < lines; y++){
+      for(int i = 0; i < enemy_count; i++){
+        rect_text_enemy = (SDL_Rect){ 
+          .x = start_x  + i * (enemy_width + enemy_spacing),
+          .y = WINDOW_HEIGHT/2 - start_y,
+          .w = enemy_width,
+          .h = enemy_height 
+        };
+        rect_enemies[y * enemy_count + i] = rect_text_enemy;               
+      }
+      start_y += 35;
+    }
+    return rect_enemies;
 }
 
 void player_move(SDL_Rect* player_rect, const Uint8* key_state) {
-    if(player_rect->x > 0 && player_rect->x + player_rect->w < WINDOW_WIDTH) {
-        if(key_state[SDL_SCANCODE_LEFT]) {
-            player_rect->x -= 5;
-        }
-        if(key_state[SDL_SCANCODE_RIGHT]) {
-            player_rect->x += 5;
-        }
-    } 
+    if (key_state[SDL_SCANCODE_LEFT] && player_rect->x > 0) {
+      player_rect->x -= 5;
+    }
+
+    if (key_state[SDL_SCANCODE_RIGHT] && player_rect->x + player_rect->w < WINDOW_WIDTH) {
+      player_rect->x += 5;
+    }
+
 }
 void run_game(SDL_Renderer* renderer, SDL_Window* window) {
+  //PLAYER - SHOOTING
     int running = 1;
     int is_shooting = 0;
+    int score = 0;
+
     SDL_Event event;
+    //FONT
     TTF_Font* font = TTF_OpenFont("src/space-invaders.ttf", 34);
+    //ENEMY - BOTTOM
     SDL_Texture* enemy011 = IMG_LoadTexture(renderer, "src/enemy011.png");
+    SDL_Rect* enemies = draw_enemy(renderer, enemy011, 2);
+      
+    //DESTROYED ENEMIES
+    SDL_Rect* destroyed_enemies = draw_enemy(renderer, enemy011, 0);
+    destroyed_enemies = malloc(22 * sizeof(SDL_Rect));
 
     //PLAYER - SETTINGS
     int player_w, player_h;
@@ -81,6 +93,7 @@ void run_game(SDL_Renderer* renderer, SDL_Window* window) {
         .w = 5,
         .h = 20
     };
+    int program_cycle = 0;
 
     while (running) {
         while (SDL_PollEvent(&event)) {
@@ -100,6 +113,16 @@ void run_game(SDL_Renderer* renderer, SDL_Window* window) {
         }
         if (is_shooting) {
           rect_shot.y -= shot_speed;
+          for(int i = 0; i < 22; i++) {
+            if(SDL_HasIntersection(&rect_shot, &enemies[i]))
+            {
+              printf("ZNIČENA:\n x:%d y:%d", enemies[i].x, enemies[i].y);
+              is_shooting = 0;
+              destroyed_enemies[i] = enemies[i];
+              enemies[i].x = -100;
+              score += 10;
+            } 
+              }
           if (rect_shot.y + rect_shot.h < 0) {
             is_shooting = 0;
           }
@@ -110,19 +133,33 @@ void run_game(SDL_Renderer* renderer, SDL_Window* window) {
         //ENEMIES
         SDL_Color colorText = {255, 255, 255, 255};     
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); 
-        draw_enemy(renderer, enemy011, 2);
+        for(int i = 0; i < 22; i++) {
+            SDL_RenderCopy(renderer, enemy011, NULL, &enemies[i]);
+        }
+
+
         //TEXT - SCORE
         int text_w, text_h;
         colorText = (SDL_Color){255, 255, 255, 255};
         get_text_size(font, "Score", &text_w, &text_h);       
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);     
-        SDL_Rect rect_text_title = {
+        SDL_Rect rect_score_title = {
           .x = 15,
           .y = 15,
           .w = text_w,
           .h = text_h
-        };        
-        draw_text(renderer, font, colorText, rect_text_title, "Score");       
+        };
+        char score_text[10];
+        sprintf(score_text, "%04d", score);        
+        draw_text(renderer, font, colorText, rect_score_title, "Score");
+        SDL_Rect rect_text_number = {
+          .x = 15,
+          .y = 50,
+          .w = text_w,
+          .h = text_h 
+        }; 
+       draw_text(renderer, font, colorText, rect_text_number, score_text);
+        //PLAYER      
         SDL_RenderCopy(renderer, player, NULL, &rect_player);
 
         if (is_shooting) {
@@ -133,5 +170,9 @@ void run_game(SDL_Renderer* renderer, SDL_Window* window) {
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
     }
-    SDL_DestroyTexture(renderer);
+    free(enemies);
+    free(destroyed_enemies);
+    SDL_DestroyTexture(enemy011);
+    SDL_DestroyTexture(player);
+    TTF_CloseFont(font);
 }

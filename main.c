@@ -43,8 +43,6 @@ int main(int argc, char *argv[])
     SDL_Texture* spacebar = IMG_LoadTexture(renderer, "src/spacebar.png");
     SDL_Texture* arrows = IMG_LoadTexture(renderer, "src/arrows.png");
     SDL_QueryTexture(spacebar, NULL, NULL, &spacebar_w, &spacebar_h); 
-    int displayWidth = 0;
-    int displayHeight = 0;
     
     SDL_QueryTexture(arrows, NULL, NULL, &arrows_w, &arrows_h); 
     while (running == 1)
@@ -61,20 +59,21 @@ int main(int argc, char *argv[])
               if (event.key.keysym.sym == SDLK_SPACE)
               {
                run_game(renderer, window);
+               startTime = SDL_GetTicks();
+               SDL_RenderClear(renderer);
               }
             }
         }
         SDL_RenderClear(renderer);
         int text_w, text_h;
-        SDL_GetWindowSize(window, &displayWidth, &displayHeight);
         SDL_Color colorText = {255, 255, 255, 255};
 
         //TEXT - TITLE
         get_text_size(font, menu_text[0], &text_w, &text_h);        
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);     
         SDL_Rect rect_text_title = {
-          .x = displayWidth/2 - text_w/2,
-          .y = displayHeight/3 - text_h/2,
+          .x = WINDOW_WIDTH/2 - text_w/2,
+          .y = WINDOW_HEIGHT/3 - text_h/2,
           .w = text_w,
           .h = text_h
         };        
@@ -83,8 +82,8 @@ int main(int argc, char *argv[])
         //TEXT - CONTROLS
         get_text_size(font, menu_text[1], &text_w, &text_h);
         SDL_Rect rect_text_controls = {
-          .x = displayWidth/2 - text_w/2,
-          .y = displayHeight/2.3 - text_h/2,
+          .x = WINDOW_WIDTH/2 - text_w/2,
+          .y = WINDOW_HEIGHT/2.3 - text_h/2,
           .w = text_w,
           .h = text_h
         };       
@@ -94,8 +93,8 @@ int main(int argc, char *argv[])
         
         //SPACEBAR
         SDL_Rect rect_spacebar = {
-          .x = displayWidth/2 - spacebar_w,
-          .y = displayHeight/1.8,
+          .x = WINDOW_WIDTH/2 - spacebar_w,
+          .y = WINDOW_HEIGHT/1.8,
           .w = spacebar_w/1.7,
           .h = spacebar_h/1.7
         };    
@@ -104,8 +103,8 @@ int main(int argc, char *argv[])
         //ARROWS
 
         SDL_Rect rect_arrows = {
-          .x = displayWidth/1.06 - arrows_w,
-          .y = displayHeight/1.6 - arrows_h/2,
+          .x = WINDOW_WIDTH/1.06 - arrows_w,
+          .y = WINDOW_HEIGHT/1.6 - arrows_h/2,
           .w = arrows_w/1.7,
           .h = arrows_h/1.7
         };    
@@ -120,18 +119,20 @@ int main(int argc, char *argv[])
 
         get_text_size(font, menu_text[2], &text_w, &text_h);
         SDL_Rect rect_text_continue = {
-          .x = displayWidth/2 - text_w/2,
-          .y = displayHeight/1.3 - text_h/2,
+          .x = WINDOW_WIDTH/2 - text_w/2,
+          .y = WINDOW_HEIGHT/1.3 - text_h/2,
           .w = text_w,
           .h = text_h
         };       
         draw_text(renderer, font, fadeColor, rect_text_continue, menu_text[2]);
         SDL_RenderPresent(renderer);
     }
-
+    SDL_DestroyTexture(spacebar);
+    SDL_DestroyTexture(arrows);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
-    SDL_Quit();
+    TTF_CloseFont(font);
+    IMG_Quit();
     TTF_Quit();
-    return 0;
+    SDL_Quit();
 }
