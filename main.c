@@ -11,9 +11,11 @@ int main(int argc, char *argv[])
   SDL_Init(SDL_INIT_VIDEO);
   TTF_Init();
 
+  //načtení fontu
   TTF_Font* font = TTF_OpenFont("src/space-invaders.ttf", 50);
   Uint32 startTime = SDL_GetTicks();
 
+  //vytvoření okna
   SDL_Window* window = SDL_CreateWindow(
     "Space Invaders",
     SDL_WINDOWPOS_CENTERED,
@@ -37,13 +39,14 @@ int main(int argc, char *argv[])
   };
 
   SDL_Event event;
-    int running = 1;
-    
+    int running = 1;   
     int spacebar_w, spacebar_h, arrows_h, arrows_w;
+
+    //načtení obrázků
     SDL_Texture* spacebar = IMG_LoadTexture(renderer, "src/spacebar.png");
     SDL_Texture* arrows = IMG_LoadTexture(renderer, "src/arrows.png");
-    SDL_QueryTexture(spacebar, NULL, NULL, &spacebar_w, &spacebar_h); 
-    
+
+    SDL_QueryTexture(spacebar, NULL, NULL, &spacebar_w, &spacebar_h);    
     SDL_QueryTexture(arrows, NULL, NULL, &arrows_w, &arrows_h); 
     while (running == 1)
     {
@@ -56,6 +59,7 @@ int main(int argc, char *argv[])
             }
             else if (event.type == SDL_KEYDOWN)
             {
+              //START hry
               if (event.key.keysym.sym == SDLK_SPACE)
               {
                run_game(renderer, window);
@@ -68,7 +72,7 @@ int main(int argc, char *argv[])
         int text_w, text_h;
         SDL_Color colorText = {255, 255, 255, 255};
 
-        //TEXT - TITLE
+        //TEXT - nadpis
         get_text_size(font, menu_text[0], &text_w, &text_h);        
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);     
         SDL_Rect rect_text_title = {
@@ -79,7 +83,7 @@ int main(int argc, char *argv[])
         };        
         draw_text(renderer, font, colorText, rect_text_title, menu_text[0]);
 
-        //TEXT - CONTROLS
+        //TEXT - ovládání
         get_text_size(font, menu_text[1], &text_w, &text_h);
         SDL_Rect rect_text_controls = {
           .x = WINDOW_WIDTH/2 - text_w/2,
@@ -89,8 +93,7 @@ int main(int argc, char *argv[])
         };       
         draw_text(renderer, font, colorText, rect_text_controls, menu_text[1]);
 
-        /*TLAČÍTKA - OVLÁDÁNÍ*/
-        
+        /*TLAČÍTKA - OVLÁDÁNÍ*/       
         //SPACEBAR
         SDL_Rect rect_spacebar = {
           .x = WINDOW_WIDTH/2 - spacebar_w,
@@ -101,7 +104,6 @@ int main(int argc, char *argv[])
         SDL_RenderCopy(renderer, spacebar, NULL, &rect_spacebar);
 
         //ARROWS
-
         SDL_Rect rect_arrows = {
           .x = WINDOW_WIDTH/1.06 - arrows_w,
           .y = WINDOW_HEIGHT/1.6 - arrows_h/2,
@@ -110,8 +112,7 @@ int main(int argc, char *argv[])
         };    
         SDL_RenderCopy(renderer, arrows, NULL, &rect_arrows);
 
-        //TEXT - Press space...
-        
+        //TEXT - Press space...        
         Uint32 time = SDL_GetTicks() - startTime;
         float phase = (sin(time / 500.0f) + 1.0f) / 2.0f;
         Uint8 alpha = (Uint8)(phase * 255);
