@@ -19,6 +19,43 @@ void draw_text(SDL_Renderer* renderer, TTF_Font* font, SDL_Color color, SDL_Rect
     SDL_FreeSurface(surface);
 }
 
+Bunker * init_bunkers(int bunker_count, int bunker_parts){
+  Bunker* bunkers = malloc((bunker_count * bunker_parts)*sizeof(Bunker));
+
+  int start_y = WINDOW_HEIGHT - 250;
+  int bunker_width = 12;
+  int bunker_height = 10;
+  int bunker_size = 6;
+  int gap = WINDOW_WIDTH / (bunker_count + 1);
+
+  int pocet = 0;
+
+  for(int i = 0; i < bunker_count; i++){
+    int start_x = gap * (i + 1) - (bunker_width * bunker_size) / 2;
+    for(int a = 0; a < bunker_height; a++){
+      for(int b = 0; b < bunker_width; b++){
+        if (a == 0 && (b == 0 || b == bunker_width - 1)) continue;
+        if (a == 1 && (b == 0 || b == bunker_width - 1)) continue;
+        if (a == 0 && (b == 1 || b == bunker_width - 2)) continue;
+        if (a >= 6 && (b >= 4 && b <= 7)) continue;
+
+        if(pocet < (bunker_parts * bunker_count)){
+          bunkers[pocet].rect.x = start_x + b * bunker_size;
+          bunkers[pocet].rect.y = start_y + a * bunker_size;
+          bunkers[pocet].rect.w = bunker_size;
+          bunkers[pocet].rect.h = bunker_size;
+          bunkers[pocet].active = 1;
+          pocet++;
+        }
+      }
+    }
+  }
+  for (int y = pocet; y < (bunker_parts * bunker_count); y++){
+    bunkers[y].active = 0;
+  }
+  return bunkers;
+}
+
 Enemy* init_enemies(int lines) {
     Enemy* enemies = NULL;
     int enemy_width = 45;
@@ -43,11 +80,10 @@ Enemy* init_enemies(int lines) {
           .w = enemy_width,
           .h = enemy_height 
         };
-
         enemies[index].active = 1;
         
         if (y == 0 || y == 1) {
-            enemies[index].type = 1;      // Spodní řada
+            enemies[index].type = 1; 
             enemies[index].score_value = 10; 
         } else if (y == 2 || y == 3){
             enemies[index].type = 2;     
@@ -65,7 +101,6 @@ Enemy* init_enemies(int lines) {
 //Pohyb enemies
 void enemy_move(Enemy* enemies, int * direction, int speed, int enemy_count) {
   int border_hit = 0;
-
   for(int i = 0; i < enemy_count; i++){
       if(enemies[i].active == 0){
         continue;
@@ -140,6 +175,12 @@ void run_game(SDL_Renderer* renderer, SDL_Window* window) {
     int direction = 1; //DOPRAVA x DOLEVA
     Enemy* enemies = init_enemies(5);
 
+    //BUNKRY
+    int bunkers_count = 4;
+    int bunkers_parts = 150;
+    int total_bunker_parts = bunkers_count * bunkers_parts;
+    Bunker* bunkers = init_bunkers(bunkers_count, bunkers_parts);
+
     //PLAYER - SETTINGS
     int player_w, player_h;
     SDL_Texture* player = IMG_LoadTexture(renderer, "src/player.png");
@@ -162,14 +203,23 @@ void run_game(SDL_Renderer* renderer, SDL_Window* window) {
     
     while (running) {
         while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) running = 0;
-            if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)
-                running = 0;
+          if (event.type == SDL_QUIT) running = 0;
+          if (event.type == SDL_KEYDOWN){
+              if (event.key.keysym.sym == SDLK_ESCAPE){
+                 running = 0;
+              }
+              if (event.key.keysym.sym == SDLK_SPACE && !is_shooting) {
+                  is_shooting = 1;
+                  rect_shot.x = rect_player.x + rect_player.w / 2 - rect_shot.w / 2;
+                  rect_shot.y = rect_player.y - rect_shot.h; 
+              }
+            }
         }
         const Uint8* key_state = SDL_GetKeyboardState(NULL);
         
         //PLAYER - MOVE
         player_move(&rect_player, key_state);
+
         //ENEMIES - MOVE
         program_cycle++;
         if(program_cycle >= enemies_move_interval){
@@ -177,34 +227,49 @@ void run_game(SDL_Renderer* renderer, SDL_Window* window) {
           obrazek = !obrazek;
           program_cycle = 0;
         }
-        //SHOT
-        if (key_state[SDL_SCANCODE_SPACE] && !is_shooting) {
-          is_shooting = 1;
-          rect_shot.x = rect_player.x + rect_player.w / 2 - rect_shot.w / 2;
-          rect_shot.y = rect_player.y - rect_shot.h;     
-        }
+        
         if (is_shooting) {
           rect_shot.y -= shot_speed;
+        //ENEMY HIT CHECK
           for(int i = 0; i < total_enemies; i++) {
-            if(enemies[i].active && SDL_HasIntersection(&rect_shot, &enemies[i].rect))
-            {
-              printf("ZNIČENA:\n x:%d y:%d", enemies[i].type, enemies[i].score_value);
+            if(enemies[i].active && SDL_HasIntersection(&rect_shot, &enemies[i].rect)){
               is_shooting = 0;
               enemies[i].active = 0;
               score += enemies[i].score_value;
+              break;
+            }                    
+        }
+        //BUNKER HIT CHECK
+        if(is_shooting){
+          for(int i = 0; i < (bunkers_parts*bunkers_count); i++) {
+            if (bunkers[i].active && SDL_HasIntersection(&rect_shot, &bunkers[i].rect)) {
+                bunkers[i].active = 0;
+                is_shooting = 0;
+                break;
             }
-            if(win_game(enemies, total_enemies) == 1){
-              running = 0;             
-            } 
-              }
-          if (rect_shot.y + rect_shot.h < 0) {
-            is_shooting = 0;
           }
+        }
+        //GAME END
+        if(win_game(enemies, total_enemies) == 1){
+          running = 0;             
+          } 
+        }
+        if (rect_shot.y + rect_shot.h < 0) {
+          is_shooting = 0;
         }
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
+        //BUNKERS
+        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+        for(int i = 0; i < (bunkers_parts * bunkers_count); i++) {
+          if (bunkers[i].active) {
+              SDL_RenderFillRect(renderer, &bunkers[i].rect);
+          }
+        }
+
+        //ENEMIES
         for(int i = 0; i < total_enemies; i++) {
             if(enemies[i].active) {
               SDL_Texture* currentTexture = NULL;
@@ -245,6 +310,7 @@ void run_game(SDL_Renderer* renderer, SDL_Window* window) {
           .h = text_h 
         }; 
        draw_text(renderer, font, colorText, rect_text_number, score_text);
+
         //PLAYER      
         SDL_RenderCopy(renderer, player, NULL, &rect_player);
 
@@ -257,8 +323,13 @@ void run_game(SDL_Renderer* renderer, SDL_Window* window) {
         SDL_Delay(16);
     }
     free(enemies);
-    SDL_DestroyTexture(enemy01);
+    free(bunkers);
     SDL_DestroyTexture(enemy02);
+    SDL_DestroyTexture(enemy01);
+    SDL_DestroyTexture(enemy11);
+    SDL_DestroyTexture(enemy12);
+    SDL_DestroyTexture(enemy22);
+    SDL_DestroyTexture(enemy21);
     SDL_DestroyTexture(player);
     TTF_CloseFont(font);
 }
