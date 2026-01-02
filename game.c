@@ -2,6 +2,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
+
 void get_text_size(TTF_Font* font, const char* text, int* w, int* h){
   TTF_SizeText(font, text, w, h);
 }
@@ -241,7 +242,7 @@ void run_game(SDL_Renderer* renderer, SDL_Window* window) {
         }
         //BUNKER HIT CHECK
         if(is_shooting){
-          for(int i = 0; i < (bunkers_parts*bunkers_count); i++) {
+          for(int i = 0; i < total_bunker_parts; i++) {
             if (bunkers[i].active && SDL_HasIntersection(&rect_shot, &bunkers[i].rect)) {
                 bunkers[i].active = 0;
                 is_shooting = 0;
@@ -263,7 +264,7 @@ void run_game(SDL_Renderer* renderer, SDL_Window* window) {
 
         //BUNKERS
         SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-        for(int i = 0; i < (bunkers_parts * bunkers_count); i++) {
+        for(int i = 0; i < total_bunker_parts; i++) {
           if (bunkers[i].active) {
               SDL_RenderFillRect(renderer, &bunkers[i].rect);
           }
