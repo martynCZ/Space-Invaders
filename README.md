@@ -9,7 +9,8 @@ C
 ### Knihovny
 #### SDL2
 ```bash
-Vytvoření okna, vykreslování, zpracování vstupů, vypisování textů, načítání a renderování textur obrázků ve formátu PNG
+Vytvoření okna, vykreslování, zpracování vstupů, vypisování textů, 
+načítání a renderování textur obrázků ve formátu PNG
 ```
 
 ## OVLÁDÁNÍ
@@ -47,7 +48,6 @@ cd ..
 ./build/game
 ```
 ## PRINCIP FUNGOVÁNÍ A STRUKTURA
-### 1. Struktura
 ```bash
 Space-Invaders/
 ├── build/                 # Kompilace (vytvoří se přes cmake)
