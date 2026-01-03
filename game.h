@@ -11,12 +11,18 @@ typedef struct {
     int type;           //TYP
     int score_value;    //BODY
     int active;         //1 nebo 0
+    Uint32 explosion;
 } Enemy;
 
 typedef struct {
     SDL_Rect rect;
     int active;
 } Bunker;
+
+typedef struct{
+    SDL_Rect rect;
+    int active;
+} Line;
 
 
 void run_game(SDL_Renderer* renderer, SDL_Window* window);
