@@ -3,7 +3,7 @@
 #include <SDL2/SDL_image.h>
 #include <math.h>
 #include "game.h"
-
+#include "end.h"
 
 
 int main(int argc, char *argv[])
@@ -62,7 +62,10 @@ int main(int argc, char *argv[])
               //START hry
               if (event.key.keysym.sym == SDLK_SPACE)
               {
-               run_game(renderer, window);
+              int playing = 1;
+              while(playing == 1){
+                playing = run_game(renderer, window);
+              }
                startTime = SDL_GetTicks();
                SDL_RenderClear(renderer);
               }
@@ -136,4 +139,5 @@ int main(int argc, char *argv[])
     IMG_Quit();
     TTF_Quit();
     SDL_Quit();
+    return 0;
 }

@@ -1,0 +1,1 @@
+/usr/bin/cc CMakeFiles/game.dir/main.c.o CMakeFiles/game.dir/game.c.o CMakeFiles/game.dir/end.c.o -o game  -lSDL2 -lSDL2_image -lSDL2_ttf -lm 

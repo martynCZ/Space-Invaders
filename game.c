@@ -2,6 +2,8 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
+#include <time.h>
+#include "end.h"
 
 //Získání velikosti textu
 void get_text_size(TTF_Font* font, const char* text, int* w, int* h){
@@ -203,17 +205,19 @@ void free_arrays(Enemy* enemies, Bunker* bunkers, Line* lines, EnemyShot* shots)
 }
 
 
-void run_game(SDL_Renderer* renderer, SDL_Window* window) {
+int run_game(SDL_Renderer* renderer, SDL_Window* window) {
     //Střelba
     int running = 1;
     int is_shooting = 0;
     int score = 0;
     int health = 3;
+    int player_won = 0;
+
     SDL_Event event;
     //SHOT DELAY
     Uint32 last_shot_time = 0;
     const Uint32 shoot_delay = 500;
-
+    srand(time(NULL));
     //FONT
     TTF_Font* font = TTF_OpenFont("src/space-invaders.ttf", 34);
 
@@ -325,6 +329,7 @@ void run_game(SDL_Renderer* renderer, SDL_Window* window) {
               enemy_shots[i].active = 0;
               if(health <= 0){
                 running = 0;
+                player_won = 0;
               }
             }
 
@@ -384,7 +389,8 @@ void run_game(SDL_Renderer* renderer, SDL_Window* window) {
                   
           //GAME END
           if(win_game(enemies, total_enemies) == 1){
-            running = 0;             
+            running = 0;   
+            player_won = 1;          
             } 
         }
 
@@ -508,4 +514,5 @@ void run_game(SDL_Renderer* renderer, SDL_Window* window) {
     SDL_DestroyTexture(enemy_hit);
     SDL_DestroyTexture(enemy_shot);
     TTF_CloseFont(font);
+    return end_screen(renderer, score, player_won);
 }

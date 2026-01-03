@@ -4,6 +4,7 @@
         "stdlib.h": "c",
         "sdl_ttf.h": "c",
         "sdl.h": "c",
-        "game.h": "c"
+        "game.h": "c",
+        "end.h": "c"
     }
 }
