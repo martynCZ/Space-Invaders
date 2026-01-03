@@ -17,7 +17,7 @@ načítání a renderování textur obrázků ve formátu PNG
 ```bash
 Šipka doprava: Pohyb vpravo
 Šipka doleva: Pohyb vlevo
-Spacebar: Střelba
+Mezerník: Střelba
 Escape: Ukončení hry
 Enter: Restart hry po konci
 ```
@@ -32,12 +32,14 @@ sudo apt-get install build-essential cmake libsdl2-dev libsdl2-image-dev libsdl2
 
 ### 2. Sestavení projektu
 V kořenové složce projektu (tam, kde je **main.c a CMakeLists.txt**) zadejte tyto příkazy:
-```bash
+
 1. vytvoření složky a přechod do ní
+```bash
 mkdir build
 cd build
-
+```
 2. spuštění CMake inicializace a sestavení projektu
+```bash
 cmake ..
 make
 ```
