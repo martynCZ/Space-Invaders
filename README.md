@@ -8,9 +8,11 @@ Hra obsahuje menu, počítání skóre a životů, ničitelné bunkry, různé t
 C
 ### Knihovny
 #### SDL2
+```bash
 Vytvoření okna, vykreslování, zpracování vstupů, vypisování textů, načítání a renderování textur obrázků ve formátu PNG
+```
 
-## Ovládání
+## OVLÁDÁNÍ
 ```bash
 Šipka doprava: Pohyb vpravo
 Šipka doleva: Pohyb vlevo
@@ -44,5 +46,22 @@ Aby hra správně načetla obrázky a fonty ze složky src/, musíte ji spoušt�
 cd ..
 ./build/game
 ```
-
+## PRINCIP FUNGOVÁNÍ A STRUKTURA
+### 1. Struktura
+```bash
+Space-Invaders/
+├── build/                 # Kompilace (vytvoří se přes cmake)
+├── src/                   # Složka s obrázky a fonty
+│   ├── player.png
+│   ├── enemy01.png
+│   ├── space-invaders.ttf
+│   └── ...
+├── CMakeLists.txt         # Konfigurace pro CMake
+├── main.c                 # Hlavní smyčka a menu
+├── game.c                 # Logika hry
+├── game.h                 # Hlavičkový soubor hry
+├── end.c                  # Obrazovka konce hry
+├── end.h                  # Hlavičkový soubor konce
+└── README.md              # Tento soubor
+```
 
