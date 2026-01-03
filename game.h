@@ -24,6 +24,11 @@ typedef struct{
     int active;
 } Line;
 
+typedef struct{
+    SDL_Rect rect;
+    int active;
+} EnemyShot;
+
 
 void run_game(SDL_Renderer* renderer, SDL_Window* window);
 void draw_text(SDL_Renderer* renderer, TTF_Font* font, SDL_Color color, SDL_Rect location, const char* text);
