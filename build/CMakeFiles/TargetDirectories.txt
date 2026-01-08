@@ -1,3 +1,0 @@
-/mnt/c/Users/kozar/Space Invaders/Space-Invaders/build/CMakeFiles/game.dir
-/mnt/c/Users/kozar/Space Invaders/Space-Invaders/build/CMakeFiles/edit_cache.dir
-/mnt/c/Users/kozar/Space Invaders/Space-Invaders/build/CMakeFiles/rebuild_cache.dir

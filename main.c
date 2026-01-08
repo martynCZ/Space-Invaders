@@ -45,9 +45,9 @@ int main(int argc, char *argv[])
     //načtení obrázků
     SDL_Texture* spacebar = IMG_LoadTexture(renderer, "src/spacebar.png");
     SDL_Texture* arrows = IMG_LoadTexture(renderer, "src/arrows.png");
-
     SDL_QueryTexture(spacebar, NULL, NULL, &spacebar_w, &spacebar_h);    
     SDL_QueryTexture(arrows, NULL, NULL, &arrows_w, &arrows_h); 
+    
     while (running == 1)
     {
         SDL_Event event;

@@ -1,7 +1,13 @@
 # SPACE INVADERS v C/SDL2
 Jednoduchá klasická hra **Space Invaders** v jazyce C s využitím knihovny SDL2.
-Hra obsahuje menu, počítání skóre a životů, ničitelné bunkry, různé typy nepřátel.
-
+Hra obsahuje:
+```bash
+menu
+počítání skóre a životů
+ničitelné bunkry
+různé typy nepřátel
+obrazovku konce hry (win/lose) s konečným skóre
+```
 ## POUŽITÉ TECHNOLOGIE
 
 ### JAZYK
